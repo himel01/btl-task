@@ -20,8 +20,9 @@ class _HomePageState extends State<HomePage> {
           var h = MediaQuery.of(context).size.height;
           var w = MediaQuery.of(context).size.width;
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             appBar: AppBar(
-              title: Text("Task Manager"),
+              title: const Text("Task Manager"),
               backgroundColor: Colors.black,
             ),
             body: Container(
@@ -36,37 +37,54 @@ class _HomePageState extends State<HomePage> {
                     width: w,
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 3.0)),
-                    child: ListView.builder(
-                      itemBuilder: (context, index) {
-                        return CheckboxListTile(
-                          value: true,
-                          onChanged: (value) {},
-                          activeColor: Colors.black,
-                          title: Text("get car"),
-                          controlAffinity: ListTileControlAffinity.leading,
-                          checkboxShape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                    child: provider.tasks.isNotEmpty
+                        ? ListView.builder(
+                            itemBuilder: (context, index) {
+                              return CheckboxListTile(
+                                value: provider.tasks[index].completed,
+                                onChanged: (value) {
+                                  provider.changeState(value!, index);
+                                },
+                                activeColor: Colors.black,
+                                title: Text(
+                                    provider.tasks[index].title.toUpperCase()),
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                checkboxShape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                secondary: IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () {
+                                      provider.deleteTask(index);
+                                    },
+                                    color: Colors.red),
+                              );
+                            },
+                            scrollDirection: Axis.vertical,
+                            itemCount: provider.tasks.length,
+                          )
+                        : Text(
+                            "Connect to the internet or \n Add Task manually!",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: w * 0.05,
+                            ),
+                      textAlign: TextAlign.center,
                           ),
-                          secondary: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {},
-                              color: Colors.red),
-                        );
-                      },
-                      scrollDirection: Axis.vertical,
-                      itemCount: 20,
-                    ),
                   ),
-
                 ],
               ),
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: (){},
-              child: Icon(Icons.add),
+              onPressed: () {
+                provider.showAlertDialog(context);
+              },
               backgroundColor: Colors.black,
+              child: const Icon(Icons.add),
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
           );
         },
       ),
